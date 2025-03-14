@@ -379,5 +379,7 @@ async def on_command_error(ctx, error):
 async def on_ready():
     print(f"Logged in as {bot.user} ✅")
 
-try: bot.run(config['token'])
+try: 
+    print("------------------ DONE INSTALLING NOW LAUNCHING ------------------")
+    bot.run(config['token'])
 except: print("⚠ Invalid token used! ⚠")
