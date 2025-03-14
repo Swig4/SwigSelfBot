@@ -30,7 +30,7 @@ from discord.ext import commands
 
 ConfigFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 currentScript = sys.argv[0]
-currentVersion = "1.1"
+currentVersion = "1.2"
 repoUrl = "https://raw.githubusercontent.com/Swig4/SwigSelfBot/main/main.py"
 
 def checkVersion():
@@ -380,6 +380,6 @@ async def on_ready():
     print(f"Logged in as {bot.user} ✅")
 
 try: 
-    print("------------------ DONE INSTALLING NOW LAUNCHING ------------------")
+    print("\n\n\n\n------------------ DONE INSTALLING NOW LAUNCHING ------------------\n\n\n\n")
     bot.run(config['token'])
 except: print("⚠ Invalid token used! ⚠")
