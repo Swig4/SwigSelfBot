@@ -20,7 +20,7 @@ for package in ReqPackages:
     try:
         __import__(package)
     except ImportError:
-        print(f"Package '{package}' not found. Installing...")
+        print(f"Updating/Installing '{package}'")
         installPackages(package)
 
 import discord
