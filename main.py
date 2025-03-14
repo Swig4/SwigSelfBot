@@ -20,7 +20,7 @@ for package in ReqPackages:
     try:
         __import__(package)
     except ImportError:
-        print(f"Updating/Installing '{package}'")
+        print(f"\nUpdating/Installing '{package}'\n")
         installPackages(package)
 
 import discord
@@ -127,7 +127,8 @@ Commands = {
     "userinfo": "Sends info about the mentioned user",
     "serverinfo": "Sends info about a server",
     "joke": "Says a silly joke",
-    "quote": "Inspires those around you"
+    "quote": "Inspires those around you",
+    "purge": "purges your messages"
 }
 
 @bot.command('help')
@@ -366,14 +367,25 @@ async def quote(ctx):
 
     await ctx.message.delete()
 
+@bot.command("purge")
+async def purge(ctx, ammount: int):
+    await ctx.message.delete()
+    if not ammount:
+        await ctx.send(f"> provide an ammount!", reference=ctx.message)
+        return
+    
+    async for message in ctx.channel.history(limit=ammount+1):
+        if message.author == ctx.author:
+            await message.delete()
+
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
         print(f"Command not found? {commands.CommandNotFound}")
         await ctx.send(f"> Oops! :3 That command doesn't exist. Run `{config['prefix']}help` for a list of commands!", reference=ctx.message)
     else:
-        print(f"Error? {error}")
-        await ctx.send("> An error occurred while processing the command. ^_^", reference=ctx.message)
+        print(f"Error: {error}")
+        await ctx.send("> An error occurred while processing the command. ^_^")
 
 @bot.event
 async def on_ready():
