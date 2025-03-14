@@ -3,8 +3,8 @@ import google.generativeai as genai
 import random
 import requests
 import json
-import aiohttp
 import os
+import sys
 from datetime import datetime, timezone
 from discord.ext import commands
 import time
@@ -12,24 +12,83 @@ import hashlib
 from io import BytesIO
 
 ConfigFile = "config.json"
+currentScript = sys.argv[0]
+currentVersion = "1.0"
+repoUrl = "https://raw.githubusercontent.com/Swig4/SwigSelfBot/main/main.py"
+
+def checkVersion():
+    try:
+        response = requests.get("https://raw.githubusercontent.com/Swig4/SwigSelfBot/main/version")
+        latest = response.text.strip()
+        if latest != currentVersion:
+            print(f"A new version is available: {latest}. Updating...")
+            downloadLatest(latest)
+        else:
+            print(f"Your bot is up to date with version {currentVersion}.")
+    except Exception as e:
+        print(f"Error checking version: {e}")
+
+def downloadLatest(latest):
+    try:
+        print(f"Downloading the latest version ({latest})...")
+        response = requests.get(repoUrl)
+        if response.status_code == 200:
+            with open(currentScript, "wb") as file:
+                file.write(response.content)
+            print("Download complete. Replacing current script with the latest version.")
+            time.sleep(2)
+            os.execl(sys.executable, sys.executable, *sys.argv)
+        else:
+            print(f"Failed to download the latest version. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"Error downloading latest version: {e}")
 
 def createConfig():
     if not os.path.exists(ConfigFile):
         token = input("Enter token: ").strip()
         prefix = input("Enter prefix (e.g., '!'): ").strip()
         GoogleKeyInput = input("Enter your Google AI API Key (leave blank if you don't have one): ").strip()
+        addToStartup = input("Do you want to add this bot to startup? (y/n): ").strip().lower()
+        
         config = {
             "token": token,
             "prefix": prefix,
-            "GoogleKey": GoogleKeyInput
+            "GoogleKey": GoogleKeyInput,
+            "addToStartup": addToStartup
         }
+        
         with open(ConfigFile, "w") as configFile:
             json.dump(config, configFile, indent=4)
         print(f"Config file created at {ConfigFile}.")
+        
+        if config["addToStartup"] == "y":
+            addToStartupFolder()
 
 def loadConfig():
     with open(ConfigFile, "r") as configFile:
         return json.load(configFile)
+
+def addToStartupFolder():
+    if config["addToStartup"] == "y":
+        startupFolder = os.path.join(os.getenv("APPDATA"), "Microsoft", "Windows", "Start Menu", "Programs", "Startup")
+        scriptPath = sys.argv[0]
+        
+        if not os.path.exists(startupFolder):
+            print(f"Could not find the Startup folder at {startupFolder}.")
+            return
+        
+        scriptName = os.path.basename(scriptPath)
+        shortcutPath = os.path.join(startupFolder, scriptName + ".bat")
+        
+        if os.path.exists(shortcutPath):
+            print(f"The bot is already in the startup folder: {shortcutPath}")
+            return
+        with open(shortcutPath, "w") as batFile:
+            batFile.write(f'@echo off\npython "{scriptPath}"\n')
+    
+        print(f"Bot has been added to startup. You can find the shortcut at {shortcutPath}")
+
+checkVersion()
 
 createConfig()
 config = loadConfig()
