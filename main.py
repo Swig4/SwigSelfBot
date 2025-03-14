@@ -18,13 +18,11 @@ repoUrl = "https://raw.githubusercontent.com/Swig4/SwigSelfBot/main/main.py"
 
 def checkVersion():
     try:
-        response = requests.get("https://raw.githubusercontent.com/Swig4/SwigSelfBot/main/version")
+        response = requests.get("https://raw.githubusercontent.com/Swig4/SwigSelfBot/refs/heads/main/version")
         latest = response.text.strip()
         if latest != currentVersion:
             print(f"A new version is available: {latest}. Updating...")
             downloadLatest(latest)
-        else:
-            print(f"Your bot is up to date with version {currentVersion}.")
     except Exception as e:
         print(f"Error checking version: {e}")
 
