@@ -11,7 +11,7 @@ import time
 import hashlib
 from io import BytesIO
 
-ConfigFile = "config.json"
+ConfigFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 currentScript = sys.argv[0]
 currentVersion = "1.0"
 repoUrl = "https://raw.githubusercontent.com/Swig4/SwigSelfBot/main/main.py"
