@@ -1,15 +1,32 @@
-import discord
-import google.generativeai as genai
-import random
-import requests
-import json
-import os
+import subprocess
 import sys
-from datetime import datetime, timezone
-from discord.ext import commands
+import os
+import json
+import requests
+import random
 import time
 import hashlib
+from datetime import datetime, timezone
+ReqPackages = [
+    'discord.py',
+    'google-generativeai',
+    'requests'
+]
+
+def installPackages(package):
+    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+
+for package in ReqPackages:
+    try:
+        __import__(package)
+    except ImportError:
+        print(f"Package '{package}' not found. Installing...")
+        installPackages(package)
+
+import discord
+import google.generativeai as genai
 from io import BytesIO
+from discord.ext import commands
 
 ConfigFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 currentScript = sys.argv[0]
