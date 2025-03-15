@@ -15,12 +15,12 @@ ReqPackages = [
 
 def installPackages(package):
     print(f"Installing/Updating: {package}")
-    subprocess.Popen(
+    subprocess.run(
         [sys.executable, "-m", "pip", "install", package],
-        creationflags=subprocess.CREATE_NO_WINDOW,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
     )
+
 for package in ReqPackages:
     try:
         __import__(package)
@@ -31,7 +31,6 @@ import discord
 import google.generativeai as genai
 from io import BytesIO
 from discord.ext import commands
-
 ConfigFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 currentScript = sys.argv[0]
 currentVersion = "1.3"
