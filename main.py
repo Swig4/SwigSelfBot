@@ -14,13 +14,17 @@ ReqPackages = [
 ]
 
 def installPackages(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
+    print(f"Installing/Updating: {package}")
+    subprocess.Popen(
+        [sys.executable, "-m", "pip", "install", package],
+        creationflags=subprocess.CREATE_NO_WINDOW,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
+    )
 for package in ReqPackages:
     try:
         __import__(package)
     except ImportError:
-        print(f"\nUpdating/Installing '{package}'\n")
         installPackages(package)
 
 import discord
@@ -30,7 +34,7 @@ from discord.ext import commands
 
 ConfigFile = os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")
 currentScript = sys.argv[0]
-currentVersion = "1.2"
+currentVersion = "1.3"
 repoUrl = "https://raw.githubusercontent.com/Swig4/SwigSelfBot/main/main.py"
 
 def checkVersion():
@@ -82,6 +86,9 @@ def createConfig():
 def loadConfig():
     with open(ConfigFile, "r") as configFile:
         return json.load(configFile)
+checkVersion()
+createConfig()
+config = loadConfig()
 
 def addToStartupFolder():
     if config["addToStartup"] == "y":
@@ -103,11 +110,8 @@ def addToStartupFolder():
     
         print(f"Bot has been added to startup. You can find the shortcut at {shortcutPath}")
 
-checkVersion()
 
-createConfig()
-config = loadConfig()
-
+addToStartupFolder()
 genai.configure(api_key=config['GoogleKey'])
 bot = commands.Bot(command_prefix=config['prefix'], self_bot=True, intents=None, help_command=None)
 
@@ -183,8 +187,8 @@ async def cryptoCommand(ctx, currency: str):
         if 'priceUsd' in data:
             usdPrice = float(data['priceUsd'])
             priceChange = float(data['changePercent24Hr'])
-            unixTimestamp = int(data['timestamp'] / 1000)
-            await ctx.send(f"`{fullName}` ~ `${usdPrice:,.2f}` <t:{unixTimestamp}:R>\n"
+            #unixTimestamp = int(data['timestamp'] / 1000)
+            await ctx.send(f"`{fullName}` ~ `${usdPrice:,.2f}`\n"
                            f"> 24hr change: `${usdPrice * priceChange / 100:,.2f} ({priceChange:+.2f}%)`\n"
                            f"> chart: <https://coincap.io/assets/{fullName}>", reference=ctx.message)
         else:
@@ -224,7 +228,6 @@ async def kissCommand(ctx, user: discord.Member = None):
         await ctx.send(f"Error fetching the gif: {e}", reference=ctx.message)
         await ctx.message.delete()
 
-
 NSFWTypes = [
     "anal", "blowjob", "cum", "fuck", "neko", "pussylick", "solo", 
     "solo_male", "threesome_fff", "threesome_ffm", "threesome_mmf", 
@@ -263,9 +266,6 @@ async def RapeableCommand(ctx, user: discord.Member, age: int):
     await ctx.send(f"> {user.mention}'s rape percent is `{Percent}%`", reference=ctx.message)
     await ctx.message.delete()
 
-
-
-
 @bot.command("userinfo")
 async def userinfo(ctx, user: discord.Member = None):
     user = user or ctx.guild.get_member(ctx.author.id)
@@ -300,7 +300,7 @@ async def serverinfo(ctx):
         await ctx.message.delete()
         return
     CreatedAt = guild.created_at.strftime("%B %d, %Y")
-    Icon = guild.icon if guild.icon else "No icon"
+    Icon = f"[Click here]({guild.icon})" if guild.icon else "No icon"
     RolesList = ', '.join([role.name for role in guild.roles[1:]]) or "No roles"
     await ctx.send(f"""
     **Server Info:**
@@ -310,7 +310,7 @@ async def serverinfo(ctx):
     > **Created At**: ``{CreatedAt}``
     > **Owner**: ``{guild.owner}``
     > **Roles**: {RolesList}
-    > **Icon**: [Click here]({Icon})
+    > **Icon**: {Icon}
     """, reference=ctx.message)
     await ctx.message.delete()
 
@@ -338,8 +338,6 @@ async def cat(ctx):
     else:
         await ctx.send(f"> Failed to fetch gif. API responded with status code: {response.status_code}", reference=ctx.message)
     await ctx.message.delete()
-
-import requests
 
 @bot.command("joke")
 async def joke(ctx):
@@ -369,11 +367,10 @@ async def quote(ctx):
 
 @bot.command("purge")
 async def purge(ctx, ammount: int):
-    await ctx.message.delete()
     if not ammount:
-        await ctx.send(f"> provide an ammount!", reference=ctx.message)
+        await ctx.send(f"> please provide an ammount!", reference=ctx.message)
         return
-    
+    await ctx.message.delete()
     async for message in ctx.channel.history(limit=ammount+1):
         if message.author == ctx.author:
             await message.delete()
@@ -392,6 +389,6 @@ async def on_ready():
     print(f"Logged in as {bot.user} ✅")
 
 try: 
-    print("\n\n\n\n------------------ DONE INSTALLING NOW LAUNCHING ------------------\n\n\n\n")
+    print("\nFinished!\n")
     bot.run(config['token'])
 except: print("⚠ Invalid token used! ⚠")
