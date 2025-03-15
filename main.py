@@ -200,11 +200,7 @@ async def cryptoCommand(ctx, currency: str):
 @bot.command("girlfriend")
 async def girlfriendCommand(ctx, user: discord.Member = None):
     user = user or ctx.author
-
-    accountCreationDate = user.created_at
-    daysOnDiscord = (ctx.message.created_at - accountCreationDate).days
-    reductionFactor = (daysOnDiscord // 100) * 5
-    finalPercentage = max(0, min(100, random.randint(0, 100) - reductionFactor))
+    finalPercentage = random.randint(0, 100)
 
     await ctx.send(f"> {user.mention}'s chance of finding a girlfriend is `{finalPercentage}%`", reference=ctx.message)
     await ctx.message.delete()
@@ -262,7 +258,7 @@ async def RapeableCommand(ctx, user: discord.Member, age: int):
         await ctx.send("> Please provide a valid age.")
         return
     Percent = 100 if age <= 15 else max(0, min(100, random.randint(0, 100) - (age * 2)))
-    await ctx.send(f"> {user.mention}'s rape percent is `{Percent}%`", reference=ctx.message)
+    await ctx.send(f"> {user.mention}'s chance of being raped is `{Percent}%`", reference=ctx.message)
     await ctx.message.delete()
 
 @bot.command("userinfo")
